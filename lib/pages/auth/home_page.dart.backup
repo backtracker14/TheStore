@@ -1,0 +1,166 @@
+// ignore_for_file: unused_import
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:htu_capstone_project0/main.dart';
+import 'package:htu_capstone_project0/pages/log_in_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:htu_capstone_project0/read%20data/get_user_name.dart';
+
+import 'account_settings_page.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final user = FirebaseAuth.instance.currentUser!;
+
+//document IDs
+  List<String> docIDs = [];
+
+  //get docIDs
+
+  Future getDocID() async {
+    await FirebaseFirestore.instance.collection('users').get().then(
+          // ignore: avoid_function_literals_in_foreach_calls
+          (snapshot) => snapshot.docs.forEach(
+            (document) {
+              if (kDebugMode) {
+                print(document.reference);
+              }
+              docIDs.add(document.reference.id);
+            },
+          ),
+        );
+  }
+
+  // @override
+  // void initState() {
+  //   getDocID();
+  //   super.initState();
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          AppLocalizations.of(context)!.title,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.shopping_cart))
+        ],
+      ),
+      drawer: Drawer(
+        backgroundColor: Colors.cyan[700],
+        child: ListView(
+          // padding: EdgeInsets.all(0),
+
+          //User icon (will implement profile photos if needed)
+          children: [
+            DrawerHeader(
+              child: Icon(
+                Icons.account_circle_rounded,
+                size: 150,
+                color: Colors.grey[200],
+              ),
+            ),
+            Center(
+              //display logged in user's name
+              child: FutureBuilder(
+                future: getDocID(),
+                builder: (context, snapshot) {
+                  return Center(
+                    child: ListTile(
+                      leading: const Icon(Icons.verified_user),
+                      title: GetUserName(documentID: docIDs[0]),
+                      style: ListTileStyle.drawer,
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            const Divider(
+              thickness: 4,
+            ),
+
+            //purchase history
+            ListTile(
+              onTap: () {},
+              title: Text(AppLocalizations.of(context)!.purchaseHistory),
+              leading: const Icon(Icons.history),
+              tileColor: Colors.cyan[500],
+            ),
+
+            const Divider(
+              thickness: 2,
+            ),
+            //account settings
+            ListTile(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AccountSettings()),
+                );
+              },
+              title: Text(AppLocalizations.of(context)!.accountSettings),
+              leading: const Icon(Icons.manage_accounts),
+              tileColor: Colors.cyan[500],
+            ),
+
+            //language settings
+            ListTile(
+              onTap: () {},
+              title: Text(AppLocalizations.of(context)!.languageSettings),
+              leading: const Icon(Icons.language),
+              tileColor: Colors.cyan[500],
+            ),
+
+            const Divider(
+              thickness: 2,
+            ),
+            //about the company
+            ListTile(
+              onTap: () {},
+              title: Text(AppLocalizations.of(context)!.languageSettings),
+              leading: const Icon(Icons.business),
+              tileColor: Colors.cyan[500],
+            ),
+            const Divider(
+              thickness: 2,
+            ),
+            //sign out button
+            ListTile(
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+              },
+              title: Text(AppLocalizations.of(context)!.logOut),
+              leading: const Icon(Icons.logout_sharp),
+              tileColor: Colors.red[400],
+            ),
+          ],
+        ),
+      ),
+      backgroundColor: Colors.grey[200],
+    );
+  }
+}

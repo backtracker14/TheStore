@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:htu_capstone_project0/pages/auth/category.dart';
+import 'package:htu_capstone_project0/pages/auth/home_page.dart';
+
+import 'package:htu_capstone_project0/assets/components/models.dart'
+    // ignore: library_prefixes
+    as MyModels;
+
+class ProductPage extends StatelessWidget {
+  final CategoryController categoryController = Get.find();
+  final ProductController productController = Get.put(ProductController());
+
+  ProductPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Products'),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Text(
+              'Category: ${categoryController.selectedCategory.value.name}',
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Obx(
+                () => productController.isLoading.value
+                    ? const Center(child: CircularProgressIndicator())
+                    : productController.products.isEmpty
+                        ? Center(child: Text('No products found.'))
+                        : ListView.builder(
+                            itemCount: productController.products.length,
+                            itemBuilder: (context, index) {
+                              MyModels.Product product =
+                                  productController.products[index] as MyModels
+                                      .Product; // Update the class reference
+                              return ListTile(
+                                leading: Image.network(
+                                  product.imageUrl,
+                                  width: 50,
+                                  height: 50,
+                                ),
+                                title: Text(product.name),
+                                subtitle: Text(
+                                    'Price: \$${product.price.toStringAsFixed(2)}'),
+                              );
+                            },
+                          ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
