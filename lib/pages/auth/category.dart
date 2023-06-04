@@ -3,20 +3,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:htu_capstone_project0/assets/controllers/some_controllers.dart';
 import 'package:htu_capstone_project0/pages/auth/product.dart';
 
 class Category {
   final String id;
   final String name;
+  final String nameAr;
   final String imageUrl;
 
-  Category({required this.id, required this.name, required this.imageUrl});
+  Category(
+      {required this.id,
+      required this.name,
+      required this.nameAr,
+      required this.imageUrl});
 }
 
 class CategoryList extends StatelessWidget {
   final CollectionReference categoriesRef =
       FirebaseFirestore.instance.collection('categories');
   final CategoryController categoryController = Get.put(CategoryController());
+  final LanguageController languageController = Get.find<LanguageController>();
 
   CategoryList({super.key});
 
@@ -39,6 +46,12 @@ class CategoryList extends StatelessWidget {
             itemCount: categoryController.categories.length,
             itemBuilder: (context, index) {
               Category category = categoryController.categories[index];
+              String categoryName = '';
+              if (languageController.selectedLanguage.value == 'ar') {
+                categoryName = category.nameAr;
+              } else {
+                categoryName = category.name;
+              }
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: GridTile(
@@ -49,7 +62,6 @@ class CategoryList extends StatelessWidget {
                     },
                     child: Stack(
                       alignment: Alignment.center,
-                      // crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Opacity(
                           opacity: 0.8,
@@ -71,16 +83,15 @@ class CategoryList extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          category.name,
+                          categoryName,
                           style: TextStyle(
                             color: Colors.white,
-                            // backgroundColor: Colors.amber,
                             decorationStyle: TextDecorationStyle.solid,
                             decorationThickness: 3,
-                            decoration: TextDecoration.combine([
-                              TextDecoration.overline,
-                              TextDecoration.underline
-                            ]),
+                            // decoration: TextDecoration.combine([
+                            //   TextDecoration.overline,
+                            //   TextDecoration.underline
+                            // ]),
                             fontSize: 40,
                             fontWeight: FontWeight.bold,
                           ),
@@ -105,7 +116,8 @@ class CategoryList extends StatelessWidget {
 class CategoryController extends GetxController {
   final isLoading = true.obs;
   final categories = <Category>[].obs;
-  final selectedCategory = Category(id: '', name: '', imageUrl: '').obs;
+  final selectedCategory =
+      Category(id: '', name: '', imageUrl: '', nameAr: '').obs;
 
   @override
   void onInit() {
@@ -128,6 +140,7 @@ class CategoryController extends GetxController {
             return Category(
                 id: doc.id,
                 name: doc.data()['name'],
+                nameAr: doc.data()['nameAr'],
                 imageUrl: doc.data()["imageUrl"]);
           })
           .toList()

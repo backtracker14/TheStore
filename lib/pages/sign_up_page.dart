@@ -1,12 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:htu_capstone_project0/pages/auth/home_page.dart';
-import 'package:htu_capstone_project0/pages/log_in_page.dart';
+import 'package:intl/intl.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -24,6 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final addressController = TextEditingController();
   final phoneNumController = TextEditingController();
   final dOBController = TextEditingController();
+  DateTime? selectedDate;
 
   Future<void> signUp() async {
     try {
@@ -45,7 +46,8 @@ class _SignUpPageState extends State<SignUpPage> {
         emailContoller.text.trim(),
         addressController.text.trim(),
         int.parse(phoneNumController.text.trim()),
-        int.parse(dOBController.text.trim()),
+        dOBController.text.trim(),
+        // Date.parse(dOBController.text.trim()),
       );
 
       Get.to(HomePage());
@@ -60,7 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
   //create user details
 
   Future addUserDetails(String uid, String firstName, String lastName,
-      String email, String address, int phoneNumber, int dOB) async {
+      String email, String address, int phoneNumber, String dOB) async {
     await FirebaseFirestore.instance.collection('users').add({
       'uid': uid,
       'first name': firstName,
@@ -261,7 +263,33 @@ class _SignUpPageState extends State<SignUpPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
-                  keyboardType: TextInputType.datetime,
+                  onTap: () {
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SizedBox(
+                          // color: Colors.blue,
+                          height: Get.height / 4,
+                          // width: Get.width / 4,
+                          child: CupertinoDatePicker(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                            initialDateTime: DateTime.now(),
+                            minimumDate: DateTime(1960),
+                            maximumDate: DateTime.now(),
+                            mode: CupertinoDatePickerMode.date,
+                            onDateTimeChanged: (DateTime newDate) {
+                              setState(() {
+                                selectedDate = newDate;
+                                dOBController.text = formatDate(selectedDate!);
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  keyboardType: TextInputType.none,
                   controller: dOBController,
                   decoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
@@ -279,9 +307,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     hintText: "01 / 05 / 2000",
                     enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                    )),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -406,5 +435,10 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  String formatDate(DateTime date) {
+    final DateFormat formatter = DateFormat('dd / MM / yyyy');
+    return formatter.format(date);
   }
 }

@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:htu_capstone_project0/assets/components/models.dart';
 import 'package:htu_capstone_project0/assets/controllers/some_controllers.dart';
-import 'package:htu_capstone_project0/pages/auth/category.dart';
 import 'package:htu_capstone_project0/pages/auth/cart.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:htu_capstone_project0/pages/empty_page.dart';
+
+import 'category.dart';
 
 class Product {
   final String id;
@@ -98,7 +100,7 @@ class ProductPage extends StatelessWidget {
                 if (productController.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (productController.products.isEmpty) {
-                  return const Center(child: Text('No products found.'));
+                  return const EmptyCat();
                 } else {
                   return GridView.builder(
                     shrinkWrap: true,

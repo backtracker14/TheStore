@@ -42,7 +42,9 @@
     "cartEmpty":"Cart is empty.",
     "detailsUpdated":"Account details updated",
     "saveChanges":"Save Changes",
-    "search":"Search"
+    "search":"Search",
+    "empty":"There are no products here yet"
+
     
     
 
